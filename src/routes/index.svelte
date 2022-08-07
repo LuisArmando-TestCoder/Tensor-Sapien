@@ -30,18 +30,13 @@
 	let nodesCanvas: HTMLUnknownElement;
 
 	onMount(() => {
-		// nodesCanvas
-		window.addEventListener(
-			'mousedown',
-			(event) => {
-				lastPosition = {
-					x: event.clientX - lastCenter.x,
-					y: event.clientY - lastCenter.y
-				};
-			}
-			// false
-		);
-		window.addEventListener('mousemove', (event) => {
+		window.addEventListener('mousedown', function setLastPostion(event) {
+			lastPosition = {
+				x: event.clientX - lastCenter.x,
+				y: event.clientY - lastCenter.y
+			};
+		});
+		window.addEventListener('mousemove', function repositionCenter(event) {
 			if (!lastPosition) return;
 
 			center.x = event.clientX - (lastPosition as Position).x;
@@ -49,17 +44,17 @@
 			lastCenter.x = center.x;
 			lastCenter.y = center.y;
 		});
-		window.addEventListener('mouseup', () => {
+		window.addEventListener('mouseup', function resetPosition() {
 			lastPosition = undefined;
 		});
-		window.addEventListener('click', (event: MouseEvent) => {
+		window.addEventListener('click', function setNodeAsVisible(event: MouseEvent) {
 			const element = event?.target as HTMLElement;
 			if (element.classList.contains('node')) {
 				const node = nodes.find(({ key }) => {
 					return key === element.dataset.key;
 				});
 
-				if (node) node.state = 'seen';
+				if (node) node.state = 'visible';
 
 				nodes = [...nodes];
 			}
@@ -111,7 +106,7 @@
 		--color-mine-shaft: #333;
 		--color-cod-gray: #111;
 		--color-white: #fff;
-		--color-gorse: #fff84d;
+		--color-gorse: #fffa73;
 	}
 	.nodes-hypergraph {
 		top: 0;
@@ -146,14 +141,20 @@
 		z-index: 1;
 		box-shadow: 0 0 20px var(--color-cod-gray);
 	}
-	.node:hover {
+	.node:not(.visible):hover {
 		background-color: var(--color-silver);
 		color: var(--color-mine-shaft);
 		box-shadow: 0 0 10px var(--color-cod-gray);
 	}
-	.node:active {
+	.node:not(.visible):active {
 		background-color: var(--color-white);
-		box-shadow: 0 0 60px var(--color-white);
+		box-shadow: 0 0 40px var(--color-white);
+	}
+	.node.visible:hover {
+		box-shadow: 0 0 10px var(--color-gorse);
+	}
+	.node.visible:active {
+		box-shadow: 0 0 40px var(--color-gorse);
 	}
 	.node p {
 		pointer-events: none;
@@ -172,5 +173,6 @@
 	.visible {
 		background: var(--color-gorse);
 		color: var(--color-mine-shaft);
+		box-shadow: 0 0 20px var(--color-visible);
 	}
 </style>
