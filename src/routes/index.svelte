@@ -59,7 +59,9 @@
 					return key === element.dataset.key;
 				});
 
-				if (node) node.key = 'seen';
+				if (node) node.state = 'seen';
+
+				nodes = [...nodes];
 			}
 		});
 	});
