@@ -13,7 +13,7 @@
 	type State = 'unseen' | 'seen' | 'visible';
 
 	let elements: { [index: string]: { connections: string[] } } = {
-		a: { connections: ['c', 'b'] },
+		abbbbccccccccc: { connections: ['c', 'b'] },
 		b: { connections: ['a', 'd'] },
 		c: { connections: ['d', 'b'] },
 		d: { connections: ['a', 'c'] }
@@ -52,7 +52,7 @@
 		window.addEventListener('mouseup', () => {
 			lastPosition = undefined;
 		});
-		window.addEventListener('click', (event: PointerEvent) => {
+		window.addEventListener('click', (event: MouseEvent) => {
 			const element = event?.target as HTMLElement;
 			if (element.classList.contains('node')) {
 				const node = nodes.find(({ key }) => {
@@ -104,12 +104,19 @@
 </section>
 
 <style>
+	:root {
+		--color-silver: #bbb;
+		--color-mine-shaft: #333;
+		--color-cod-gray: #111;
+		--color-white: #fff;
+		--color-gorse: #fff84d;
+	}
 	.nodes-hypergraph {
 		top: 0;
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: #333;
+		background: var(--color-mine-shaft);
 		cursor: pointer;
 	}
 	.wrapper,
@@ -128,31 +135,40 @@
 		height: 50px;
 		place-items: center;
 		text-align: center;
-		background: #111;
-		color: #bbb;
+		background: var(--color-mine-shaft);
+		color: var(--color-silver);
 		font-family: monospace;
 		cursor: normal;
 		user-select: none;
 		transition: background 0.35s, color 0.35s, box-shadow 0.35s;
 		z-index: 1;
-		box-shadow: 0 0 20px;
+		box-shadow: 0 0 20px var(--color-cod-gray);
 	}
 	.node:hover {
-		background-color: #bbb;
-		color: #111;
-		box-shadow: 0 0 2px #bbb;
+		background-color: var(--color-silver);
+		color: var(--color-mine-shaft);
+		box-shadow: 0 0 10px var(--color-cod-gray);
+	}
+	.node:active {
+		background-color: var(--color-white);
+		box-shadow: 0 0 60px var(--color-white);
 	}
 	.node p {
 		pointer-events: none;
+		max-width: 40px;
+		text-overflow: ellipsis;
+		overflow: hidden;
 	}
 	.seen {
-		opacity: 0.5;
+		background: var(--color-silver);
+		color: var(--color-mine-shaft);
 	}
 	.unseen {
-		opacity: 1;
+		background: var(--color-mine-shaft);
+		color: var(--color-silver);
 	}
 	.visible {
-		opacity: 1;
-		background: #8f8f00;
+		background: var(--color-gorse);
+		color: var(--color-mine-shaft);
 	}
 </style>
