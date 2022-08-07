@@ -1,5 +1,10 @@
 <script lang="ts">
+	import SvelteMarkdown from 'svelte-markdown';
+
+	const source = `# a`;
+
 	import { onMount } from 'svelte';
+
 	interface Position {
 		x: number;
 		y: number;
@@ -100,6 +105,12 @@
 	</div>
 </section>
 
+<section class="node-info">
+	<div class="node-info__wrapper">
+		<SvelteMarkdown {source}/>
+	</div>
+</section>
+
 <style>
 	:root {
 		--color-silver: #bbb;
@@ -174,5 +185,28 @@
 		background: var(--color-gorse);
 		color: var(--color-mine-shaft);
 		box-shadow: 0 0 20px var(--color-visible);
+	}
+	.node-info {
+		width: clamp(100px, 50vw, 400px);
+		height: 100vh;
+		position: fixed;
+		z-index: 1;
+		top: 0;
+		right: 0;
+		background: var(--color-cod-gray);
+		overflow: auto;
+		padding: 25px;
+		box-sizing: border-box;
+		box-shadow: 0 0 20px var(--color-cod-gray);
+	}
+	.node-info__wrapper {
+		padding: 25px;
+		color: var(--color-cod-ray);
+		background: var(--color-silver);
+		border-radius: 5px;
+		height: 100%;
+		box-sizing: border-box;
+		font-family: monospace;
+		box-shadow: inset 0 0 20px var(--color-white);
 	}
 </style>

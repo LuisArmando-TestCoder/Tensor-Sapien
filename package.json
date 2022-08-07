@@ -35,6 +35,7 @@
 	"type": "module",
 	"dependencies": {
 		"canvas-preset": "^3.3.5",
-		"node-sass": "^7.0.1"
+		"node-sass": "^7.0.1",
+		"svelte-markdown": "^0.2.2"
 	}
 }
