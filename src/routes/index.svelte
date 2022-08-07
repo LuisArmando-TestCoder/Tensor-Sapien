@@ -1,7 +1,8 @@
 <script lang="ts">
 	import SvelteMarkdown from 'svelte-markdown';
 
-	const source = `# a`;
+	let source = '';
+	let shouldCloseNodeInfo = true;
 
 	import { onMount } from 'svelte';
 
@@ -49,9 +50,19 @@
 			lastCenter.x = center.x;
 			lastCenter.y = center.y;
 		});
-		window.addEventListener('mouseup', function resetPosition() {
-			lastPosition = undefined;
-		});
+		window.addEventListener('mouseup', (event: MouseEvent) =>
+			[
+				function resetPosition() {
+					lastPosition = undefined;
+				},
+				function closeNodeInfo() {
+					const element = event?.target as HTMLElement;
+					if (!element.classList.contains('node')) {
+						shouldCloseNodeInfo = true;
+					}
+				}
+			].forEach((functionValue) => functionValue())
+		);
 		window.addEventListener('click', function setNodeAsVisible(event: MouseEvent) {
 			const element = event?.target as HTMLElement;
 			if (element.classList.contains('node')) {
@@ -62,6 +73,12 @@
 				if (node) node.state = 'visible';
 
 				nodes = [...nodes];
+
+				shouldCloseNodeInfo = false;
+
+				if (typeof node?.key === 'string') {
+					source = node?.key;
+				}
 			}
 		});
 	});
@@ -105,9 +122,9 @@
 	</div>
 </section>
 
-<section class="node-info">
+<section class={`node-info ${shouldCloseNodeInfo && 'right-hidden'}`}>
 	<div class="node-info__wrapper">
-		<SvelteMarkdown {source}/>
+		<SvelteMarkdown {source} />
 	</div>
 </section>
 
@@ -125,6 +142,7 @@
 		right: 0;
 		bottom: 0;
 		background: var(--color-mine-shaft);
+		box-shadow: inset 0 0 40px var(--color-cod-gray);
 		cursor: pointer;
 	}
 	.wrapper,
@@ -193,20 +211,24 @@
 		z-index: 1;
 		top: 0;
 		right: 0;
-		background: var(--color-cod-gray);
-		overflow: auto;
+		background: var(--color-mine-shaft);
 		padding: 25px;
 		box-sizing: border-box;
 		box-shadow: 0 0 20px var(--color-cod-gray);
+		transition: right 1s;
+	}
+	.right-hidden {
+		right: calc(clamp(100px, 50vw, 400px) * -1);
 	}
 	.node-info__wrapper {
 		padding: 25px;
 		color: var(--color-cod-ray);
-		background: var(--color-silver);
+		background: var(--color-white);
 		border-radius: 5px;
 		height: 100%;
 		box-sizing: border-box;
 		font-family: monospace;
-		box-shadow: inset 0 0 20px var(--color-white);
+		box-shadow: inset 0 0 20px var(--color-silver);
+		overflow: auto;
 	}
 </style>
