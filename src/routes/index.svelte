@@ -22,10 +22,10 @@
 
 	let elements: { [index: string]: { connections: string[]; content: string } } = {
 		a: { connections: ['c', 'b', 'd'], content: 'hey' },
-		b: { connections: [], content: 'a' },
+		b: { connections: [], content: 'a que' },
 		c: { connections: [], content: 'no' },
-		d: { connections: ['e', 'f'], content: 'te la crees' },
-		e: { connections: [], content: 'esto es' },
+		d: { connections: ['e', 'f'], content: 'creías que' },
+		e: { connections: [], content: 'esto era' },
 		f: { connections: [], content: 'posible' }
 	};
 	let nodes: Node[] = [Object.entries(elements)[0]].map(([key, { content, connections }]) => ({
