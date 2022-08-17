@@ -13,29 +13,42 @@
 	interface Node {
 		state: State;
 		key: string;
+		content: string;
+		connections: string[];
 		position: Position;
 	}
 
 	type State = 'unseen' | 'seen' | 'visible';
 
-	let elements: { [index: string]: { connections: string[] } } = {
-		abbbbccccccccc: { connections: ['c', 'b'] },
-		b: { connections: ['a', 'd'] },
-		c: { connections: ['d', 'b'] },
-		d: { connections: ['a', 'c'] }
+	let elements: { [index: string]: { connections: string[]; content: string } } = {
+		a: { connections: ['c', 'b', 'd'], content: 'hey' },
+		b: { connections: [], content: 'a' },
+		c: { connections: [], content: 'no' },
+		d: { connections: ['e', 'f'], content: 'te la crees' },
+		e: { connections: [], content: 'esto es' },
+		f: { connections: [], content: 'posible' }
 	};
-	let nodes: Node[] = [Object.entries(elements)[0]].map(([key]) => ({
+	let nodes: Node[] = [Object.entries(elements)[0]].map(([key, { content, connections }]) => ({
 		state: 'unseen',
 		key,
+		content,
+		connections,
 		position: { x: 0, y: 0 }
 	}));
-	const lines: { _1: Position; _2: Position }[] = [];
+	let lines: { _1: Position; _2: Position }[] = [];
 	const center: Position = { x: 0, y: 0 };
 	let lastPosition: Position | void;
 	let lastCenter = { ...center };
 	let nodesCanvas: HTMLUnknownElement;
+	const falseWindow = {
+		innerWidth: 0,
+		innerHeight: 0
+	};
 
 	onMount(() => {
+		falseWindow.innerWidth = window.innerWidth;
+		falseWindow.innerHeight = window.innerHeight;
+
 		window.addEventListener('mousedown', function setLastPostion(event) {
 			lastPosition = {
 				x: event.clientX - lastCenter.x,
@@ -50,18 +63,23 @@
 			lastCenter.x = center.x;
 			lastCenter.y = center.y;
 		});
-		window.addEventListener('mouseup', (event: MouseEvent) =>
-			[
-				function resetPosition() {
-					lastPosition = undefined;
-				},
-				function closeNodeInfo() {
-					const element = event?.target as HTMLElement;
-					if (!element.classList.contains('node')) {
-						shouldCloseNodeInfo = true;
+		(document.querySelector('.nodes-hypergraph') as HTMLElement).addEventListener(
+			'mouseup',
+			(event: MouseEvent) =>
+				[
+					function resetPosition() {
+						lastPosition = undefined;
+					},
+					function closeNodeInfo() {
+						const element = event?.target as HTMLElement;
+						if (
+							!element.classList.contains('node') ||
+							element.tagName === 'SVG'
+						) {
+							shouldCloseNodeInfo = true;
+						}
 					}
-				}
-			].forEach((functionValue) => functionValue())
+				].forEach((functionValue) => functionValue())
 		);
 		window.addEventListener('click', function setNodeAsVisible(event: MouseEvent) {
 			const element = event?.target as HTMLElement;
@@ -77,7 +95,43 @@
 				shouldCloseNodeInfo = false;
 
 				if (typeof node?.key === 'string') {
-					source = node?.key;
+					source = node?.content;
+
+					const lastLinesLength = lines.length;
+
+					node.connections.forEach((key, index) => {
+						const { content, connections } = elements[key];
+
+						if (!nodes.map(({ key }) => key).includes(key)) {
+							const step = (index / node.connections.length) * Math.PI * 2;
+
+							nodes.push({
+								state: 'unseen',
+								key,
+								content,
+								connections,
+								position: {
+									x: node.position.x + Math.sin(step) * 100,
+									y: node.position.y + Math.cos(step) * 100
+								}
+							});
+
+							lines.push({
+								_1: {
+									x: node.position.x,
+									y: node.position.y
+								},
+								_2: {
+									x: nodes[nodes.length - 1].position.x,
+									y: nodes[nodes.length - 1].position.y
+								}
+							});
+						}
+					});
+
+					if (lastLinesLength != lines.length) {
+						lines = [...lines];
+					}
 				}
 			}
 		});
@@ -94,15 +148,22 @@
 	>
 		<div class="lines">
 			<svg>
-				{#each lines as line}
-					<line
-						x1={line._1.x}
-						y1={line._1.y}
-						x2={line._2.x}
-						y2={line._2.y}
-						style="stroke: rgb(255, 255, 255); stroke-width: 2;"
-					/>
-				{/each}
+				<g
+					transform={`translate(${(center?.x ?? 0) + falseWindow.innerWidth / 2}, ${
+						(center?.y ?? 0) + falseWindow.innerHeight / 2
+					})`}
+				>
+					{#each lines as line}
+						<line
+							x1={line._1.x}
+							y1={line._1.y}
+							x2={line._2.x}
+							y2={line._2.y}
+							stroke="#f44"
+							stroke-width="2"
+						/>
+					{/each}
+				</g>
 			</svg>
 		</div>
 		<div class="nodes" bind:this={nodesCanvas}>
@@ -149,9 +210,11 @@
 	.nodes-hypergraph {
 		position: fixed;
 	}
+	.nodes {
+		z-index: 1;
+	}
 	.nodes,
-	.node,
-	.lines {
+	.node {
 		position: absolute;
 	}
 	.node {
@@ -208,7 +271,7 @@
 		width: clamp(100px, 50vw, 400px);
 		height: 100vh;
 		position: fixed;
-		z-index: 1;
+		z-index: 2;
 		top: 0;
 		right: 0;
 		background: var(--color-mine-shaft);
@@ -230,5 +293,13 @@
 		font-family: monospace;
 		box-shadow: inset 0 0 20px var(--color-silver);
 		overflow: auto;
+	}
+	.lines svg {
+		width: 100vw;
+		height: 100vh;
+		top: 0;
+		left: 0;
+		position: fixed;
+		z-index: 0;
 	}
 </style>
