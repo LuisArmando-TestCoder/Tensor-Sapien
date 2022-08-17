@@ -41,7 +41,7 @@
 	let lastPosition: Position | void;
 	let lastCenter = { ...center };
 	let nodesCanvas: HTMLUnknownElement;
-	const falseWindow = {
+	let falseWindow = {
 		innerWidth: 0,
 		innerHeight: 0
 	};
@@ -50,6 +50,11 @@
 		falseWindow.innerWidth = window.innerWidth;
 		falseWindow.innerHeight = window.innerHeight;
 
+		window.addEventListener('resize', () => {
+			falseWindow.innerWidth = window.innerWidth;
+			falseWindow.innerHeight = window.innerHeight;
+			falseWindow = {...falseWindow};
+		});
 		window.addEventListener('mousedown', function setLastPostion(event) {
 			lastPosition = {
 				x: event.clientX - lastCenter.x,
