@@ -26,7 +26,8 @@
 		c: { connections: [], content: 'no' },
 		d: { connections: ['e', 'f'], content: 'creías que' },
 		e: { connections: [], content: 'esto era' },
-		f: { connections: [], content: 'posible' }
+		f: { connections: ['g'], content: 'posible' },
+		g: { connections: [], content: '# Bienvenido' },
 	};
 	let nodes: Node[] = [Object.entries(elements)[0]].map(([key, { content, connections }]) => ({
 		state: 'unseen',
@@ -72,10 +73,7 @@
 					},
 					function closeNodeInfo() {
 						const element = event?.target as HTMLElement;
-						if (
-							!element.classList.contains('node') ||
-							element.tagName === 'SVG'
-						) {
+						if (!element.classList.contains('node') || element.tagName === 'SVG') {
 							shouldCloseNodeInfo = true;
 						}
 					}
@@ -99,35 +97,7 @@
 
 					const lastLinesLength = lines.length;
 
-					node.connections.forEach((key, index) => {
-						const { content, connections } = elements[key];
-
-						if (!nodes.map(({ key }) => key).includes(key)) {
-							const step = (index / node.connections.length) * Math.PI * 2;
-
-							nodes.push({
-								state: 'unseen',
-								key,
-								content,
-								connections,
-								position: {
-									x: node.position.x + Math.sin(step) * 100,
-									y: node.position.y + Math.cos(step) * 100
-								}
-							});
-
-							lines.push({
-								_1: {
-									x: node.position.x,
-									y: node.position.y
-								},
-								_2: {
-									x: nodes[nodes.length - 1].position.x,
-									y: nodes[nodes.length - 1].position.y
-								}
-							});
-						}
-					});
+					populateNodeChildren(node);
 
 					if (lastLinesLength != lines.length) {
 						lines = [...lines];
@@ -136,6 +106,38 @@
 			}
 		});
 	});
+
+	function populateNodeChildren(node: Node) {
+		node.connections.forEach((key, index) => {
+			const { content, connections } = elements[key];
+
+			if (!nodes.map(({ key }) => key).includes(key)) {
+				const step = (index / node.connections.length) * Math.PI * 2;
+
+				nodes.push({
+					state: 'unseen',
+					key,
+					content,
+					connections,
+					position: {
+						x: node.position.x + Math.sin(step) * 100,
+						y: node.position.y + Math.cos(step) * 100
+					}
+				});
+
+				lines.push({
+					_1: {
+						x: node.position.x,
+						y: node.position.y
+					},
+					_2: {
+						x: nodes[nodes.length - 1].position.x,
+						y: nodes[nodes.length - 1].position.y
+					}
+				});
+			}
+		});
+	}
 </script>
 
 <section class="nodes-hypergraph">
